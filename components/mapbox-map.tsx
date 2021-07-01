@@ -5,9 +5,14 @@ import "mapbox-gl/dist/mapbox-gl.css";
 interface MapboxMapProps {
   initialOptions?: Omit<mapboxgl.MapboxOptions, "container">;
   onMapLoaded?(map: mapboxgl.Map): void;
+  onMapRemoved?(): void;
 }
 
-function MapboxMap({ initialOptions = {}, onMapLoaded }: MapboxMapProps) {
+function MapboxMap({
+  initialOptions = {},
+  onMapLoaded,
+  onMapRemoved,
+}: MapboxMapProps) {
   const [map, setMap] = React.useState<mapboxgl.Map>();
 
   const mapNode = React.useRef(null);
@@ -32,6 +37,7 @@ function MapboxMap({ initialOptions = {}, onMapLoaded }: MapboxMapProps) {
 
     return () => {
       mapboxMap.remove();
+      if (onMapRemoved) onMapRemoved();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
