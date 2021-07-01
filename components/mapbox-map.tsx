@@ -30,6 +30,10 @@ function MapboxMap({ initialOptions = {}, onMapLoaded }: MapboxMapProps) {
 
     if (onMapLoaded) mapboxMap.once("load", onMapLoaded);
 
+    return () => {
+      mapboxMap.remove();
+    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
