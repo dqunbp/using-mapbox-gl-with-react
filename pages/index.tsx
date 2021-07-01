@@ -11,6 +11,10 @@ function App() {
     <>
       <Head>
         <title>Using mapbox-gl with React and Next.js</title>
+        <meta
+          property="og:title"
+          content="Using mapbox-gl with React and Next.js"
+        />
       </Head>
       <div className="app-container">
         <div className="map-wrapper">
