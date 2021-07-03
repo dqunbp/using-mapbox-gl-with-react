@@ -26,7 +26,7 @@
   </a>
 </h2>
 
-<p align="center">
+<p>
   <a href="https://dev.to/dqunbp/using-mapbox-gl-in-react-with-next-js-2glg">
     <img src="/public/map-loading-screen.gif?raw=true" />
   </a>
