@@ -4,12 +4,14 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 interface MapboxMapProps {
   initialOptions?: Omit<mapboxgl.MapboxOptions, "container">;
+  onMapCreated?(map: mapboxgl.Map): void;
   onMapLoaded?(map: mapboxgl.Map): void;
   onMapRemoved?(): void;
 }
 
 function MapboxMap({
   initialOptions = {},
+  onMapCreated,
   onMapLoaded,
   onMapRemoved,
 }: MapboxMapProps) {
@@ -32,8 +34,9 @@ function MapboxMap({
     });
 
     setMap(mapboxMap);
+    if (onMapCreated) onMapCreated(mapboxMap);
 
-    if (onMapLoaded) mapboxMap.once("load", onMapLoaded);
+    if (onMapLoaded) mapboxMap.once("load", () => onMapLoaded(mapboxMap));
 
     return () => {
       mapboxMap.remove();

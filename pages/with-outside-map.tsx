@@ -1,127 +1,43 @@
-import { useActor, useMachine } from "@xstate/react";
-import { interpret, send, State } from "xstate";
-import { assign, createMachine } from "xstate";
-import { inspect } from "@xstate/inspect";
+import * as React from "react";
 import mapbox from "../lib/map-wrapper";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const onNodeCreated = <T extends HTMLElement>(node: T | null) => {
   if (node === null) return;
 
-  const { zoom, center } = mapService.state.context;
-
   mapbox.create(node, {
     style: "mapbox://styles/mapbox/streets-v11",
     accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
-    zoom,
-    center,
-  });
-  mapbox.map.once("load", () => {
-    mapService.send({ type: "LOAD" });
-  });
-  mapbox.map.on("moveend", () => {
-    mapService.send({
-      type: "MOVE",
-      center: [
-        +mapbox.map.getCenter().lng.toFixed(4),
-        +mapbox.map.getCenter().lat.toFixed(4),
-      ],
-      fromCallback: true,
-    });
-  });
-  mapbox.map.on("zoomend", () => {
-    mapService.send({
-      type: "ZOOM",
-      zoom: +mapbox.map.getZoom().toFixed(2),
-      fromCallback: true,
-    });
+    zoom: 9,
+    center: [-74.5, 40],
   });
 };
 
-interface Context {
-  zoom: number;
-  center: [number, number];
-}
-
-type Event =
-  | { type: "LOAD" }
-  | { type: "MOVE"; center: [number, number]; fromCallback?: boolean }
-  | { type: "ZOOM"; zoom: number; fromCallback?: boolean };
-
-const mapMachine = createMachine<Context, Event>(
-  {
-    id: "map",
-    initial: "loading",
-    context: {
-      zoom: 9,
-      center: [-74.5, 40],
-    },
-    states: {
-      loading: {
-        on: {
-          LOAD: {
-            target: "idle",
-          },
-        },
-      },
-      idle: {
-        on: {
-          MOVE: {
-            actions: [
-              assign({
-                center: (_ctx, event) => {
-                  if (!event.fromCallback) mapbox.map.setCenter(event.center);
-                  return event.center;
-                },
-              }),
-              "persist",
-            ],
-          },
-          ZOOM: {
-            actions: [
-              assign({
-                zoom: (_ctx, event) => {
-                  if (!event.fromCallback) mapbox.map.setZoom(event.zoom);
-                  return event.zoom;
-                },
-              }),
-              "persist",
-            ],
-          },
-        },
-      },
-    },
-  },
-  {
-    actions: {
-      persist: () => {
-        localStorage.setItem("state", JSON.stringify(mapService.state.context));
-      },
-    },
-  }
-);
-
-const mapService = interpret(mapMachine, { devTools: true });
-
-if (typeof window !== "undefined") {
-  inspect({
-    iframe: false,
-  });
-
-  const ctx = localStorage.getItem("state");
-
-  const nextContext = ctx
-    ? (JSON.parse(ctx) as Context)
-    : mapMachine.initialState.context;
-
-  mapService.start(State.from(mapMachine.initialState, nextContext));
-}
-
 const WithOutsideMap: React.FC = () => {
-  const [{ context }] = useActor(mapService);
+  const [[lat, lng], setCenter] = React.useState(["-74.5", "40"]);
+  const [zoom, setZoom] = React.useState("9");
 
-  const [lng, lat] = context.center;
-  const zoom = context.zoom;
+  const onNodeCreated = React.useCallback(
+    <T extends HTMLElement>(node: T | null) => {
+      if (node === null) return;
+
+      mapbox.create(node, {
+        style: "mapbox://styles/mapbox/streets-v11",
+        accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
+        zoom: +zoom,
+        center: [+lat, +lng],
+      });
+
+      mapbox.map.on("move", () => {
+        setCenter([
+          mapbox.map.getCenter().lng.toFixed(4),
+          mapbox.map.getCenter().lat.toFixed(4),
+        ]);
+        setZoom(mapbox.map.getZoom().toFixed(2));
+      });
+    },
+    []
+  );
 
   return (
     <div className="app-container">
