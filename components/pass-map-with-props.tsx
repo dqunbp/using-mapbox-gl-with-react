@@ -12,7 +12,7 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <MapboxMap onLoaded={(mapboxMap) => setMap(mapboxMap)} />
+      <MapboxMap onLoaded={setMap} />
       <Sidebar map={map} />
     </div>
   );
