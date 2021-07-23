@@ -4,14 +4,16 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 interface MapboxMapProps {
   initialOptions?: Omit<mapboxgl.MapboxOptions, "container">;
-  onMapLoaded?(map: mapboxgl.Map): void;
-  onMapRemoved?(): void;
+  onCreated?(map: mapboxgl.Map): void;
+  onLoaded?(map: mapboxgl.Map): void;
+  onRemoved?(): void;
 }
 
 function MapboxMap({
   initialOptions = {},
-  onMapLoaded,
-  onMapRemoved,
+  onCreated,
+  onLoaded,
+  onRemoved,
 }: MapboxMapProps) {
   const [map, setMap] = React.useState<mapboxgl.Map>();
 
@@ -32,12 +34,14 @@ function MapboxMap({
     });
 
     setMap(mapboxMap);
+    if (onCreated) onCreated(mapboxMap);
 
-    if (onMapLoaded) mapboxMap.once("load", onMapLoaded);
+    if (onLoaded) mapboxMap.once("load", () => onLoaded(mapboxMap));
 
     return () => {
       mapboxMap.remove();
-      if (onMapRemoved) onMapRemoved();
+      setMap(undefined);
+      if (onRemoved) onRemoved();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
