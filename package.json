@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:ts": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@xstate/react": "^1.5.1",

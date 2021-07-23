@@ -20,7 +20,7 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <MapboxMap onMapLoaded={(mapboxMap) => setMap(mapboxMap)} />
+      <MapboxMap onLoaded={(mapboxMap) => setMap(mapboxMap)} />
       <MapboxMapContext.Provider value={map}>
         <Sidebar />
       </MapboxMapContext.Provider>
