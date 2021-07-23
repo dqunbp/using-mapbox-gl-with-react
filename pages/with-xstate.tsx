@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useActor } from "@xstate/react";
 import { interpret, State } from "xstate";
 import { assign, createMachine } from "xstate";
@@ -100,6 +101,12 @@ const WithOutsideMap: React.FC = () => {
 
   const [lng, lat] = context.center;
   const zoom = context.zoom;
+
+  React.useLayoutEffect(() => {
+    return () => {
+      mapbox.remove();
+    };
+  }, []);
 
   return (
     <div className="app-container">

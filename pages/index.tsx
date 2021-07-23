@@ -24,7 +24,7 @@ function App() {
         <div className="map-wrapper">
           <MapboxMap
             initialOptions={{ center: [38.0983, 55.7038] }}
-            onMapLoaded={handleMapLoading}
+            onLoaded={handleMapLoading}
           />
         </div>
         {loading && <MapLoadingHolder className="loading-holder" />}

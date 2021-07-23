@@ -1,43 +1,32 @@
 import * as React from "react";
-import mapbox from "../lib/map-wrapper";
 import "mapbox-gl/dist/mapbox-gl.css";
-
-const onNodeCreated = <T extends HTMLElement>(node: T | null) => {
-  if (node === null) return;
-
-  mapbox.create(node, {
-    style: "mapbox://styles/mapbox/streets-v11",
-    accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
-    zoom: 9,
-    center: [-74.5, 40],
-  });
-};
+import MapboxMap from "../components/mapbox-map";
+import mapbox from "../lib/map-wrapper";
 
 const WithOutsideMap: React.FC = () => {
-  const [[lat, lng], setCenter] = React.useState(["-74.5", "40"]);
-  const [zoom, setZoom] = React.useState("9");
+  const [viewport, setViewport] = React.useState({
+    center: ["-74.5165", "40.0021"],
+    zoom: "9.00",
+  });
 
-  const onNodeCreated = React.useCallback(
-    <T extends HTMLElement>(node: T | null) => {
-      if (node === null) return;
+  const {
+    center: [lng, lat],
+    zoom,
+  } = viewport;
 
-      mapbox.create(node, {
-        style: "mapbox://styles/mapbox/streets-v11",
-        accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
-        zoom: +zoom,
-        center: [+lat, +lng],
-      });
+  const onMapCreated = React.useCallback((map: mapboxgl.Map) => {
+    mapbox.map = map;
 
-      mapbox.map.on("move", () => {
-        setCenter([
+    mapbox.map.on("move", () => {
+      setViewport({
+        center: [
           mapbox.map.getCenter().lng.toFixed(4),
           mapbox.map.getCenter().lat.toFixed(4),
-        ]);
-        setZoom(mapbox.map.getZoom().toFixed(2));
+        ],
+        zoom: mapbox.map.getZoom().toFixed(2),
       });
-    },
-    []
-  );
+    });
+  }, []);
 
   return (
     <div className="app-container">
@@ -45,10 +34,10 @@ const WithOutsideMap: React.FC = () => {
         <div className="viewport-panel">
           Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
         </div>
-        <div
-          ref={onNodeCreated}
-          style={{ width: "100%", height: "100%" }}
-        ></div>
+        <MapboxMap
+          onCreated={onMapCreated}
+          initialOptions={{ center: [+lng, +lat], zoom: +zoom }}
+        />
       </div>
     </div>
   );
